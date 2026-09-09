@@ -1,0 +1,8 @@
+# Runtime data - participant database and uploaded quizzes
+data/
+
+# Runtime logs
+logs/
+
+# Admin credentials - never commit
+admin/.htpasswd

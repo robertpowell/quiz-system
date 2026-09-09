@@ -109,13 +109,23 @@ if ($timeRemaining == 0 && !$participant['completed_at']) {
 
         .fixed-timer {
             position: fixed;
-            top: 1rem;
-            right: 1rem;
+            top: 0.5rem;
+            right: 0.5rem;
             background: white;
-            padding: 1rem 2rem;
-            border-radius: 0.5rem;
-            box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+            padding: 0.4rem 0.8rem;
+            border-radius: 0.4rem;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
             z-index: 100;
+            font-size: 0.85rem;
+        }
+
+        .fixed-timer .stat-label {
+            font-size: 0.7rem;
+            margin-bottom: 0.1rem;
+        }
+
+        .fixed-timer .timer {
+            font-size: 1.1rem;
         }
 
         @media (max-width: 768px) {
@@ -125,6 +135,10 @@ if ($timeRemaining == 0 && !$participant['completed_at']) {
                 left: 0;
                 border-radius: 0;
             }
+        }
+
+        .question-container {
+            scroll-margin-top: 70px;
         }
     </style>
 </head>
@@ -273,11 +287,12 @@ if ($timeRemaining == 0 && !$participant['completed_at']) {
 
             // Show new question
             currentQuestion = index;
-            document.getElementById(`question-${currentQuestion}`).style.display = 'block';
+            const questionEl = document.getElementById(`question-${currentQuestion}`);
+            questionEl.style.display = 'block';
             document.getElementById(`nav-${currentQuestion}`).classList.add('current');
 
-            // Scroll to top
-            window.scrollTo({ top: 0, behavior: 'smooth' });
+            // Scroll to question section
+            questionEl.scrollIntoView({ behavior: 'smooth', block: 'start' });
         }
 
         // Answer selection

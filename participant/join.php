@@ -106,6 +106,11 @@ if ($code) {
                     <li>Answer all questions before time runs out</li>
                 </ol>
             </div>
+
+            <div class="text-center mt-3" style="font-size: 0.8rem; color: #666;">
+                This site uses essential cookies for authentication. No tracking cookies are used.
+                <br><a href="../privacy.php" style="color: var(--primary);">Privacy Policy</a>
+            </div>
         </div>
     </main>
 

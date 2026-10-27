@@ -1,4 +1,8 @@
 <?php
+require_once __DIR__ . '/../includes/admin_auth.php';
+require_admin();
+quiz_require_csrf();
+
 require_once '../includes/config.php';
 require_once '../includes/db.php';
 
@@ -69,6 +73,7 @@ $topics = $db->getTopics();
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Manage Topics - Quiz System</title>
     <link rel="stylesheet" href="../assets/css/style.css">
+<link rel="stylesheet" href="qsadmin.css?v=<?php echo @filemtime(__DIR__."/qsadmin.css"); ?>">
 </head>
 <body>
     <header>
@@ -100,7 +105,7 @@ $topics = $db->getTopics();
                 <div class="card-header">
                     <h3 class="card-title">Create New Topic</h3>
                 </div>
-                <form method="POST">
+                <form method="POST"><input type="hidden" name="csrf" value="<?php echo htmlspecialchars(quiz_csrf_token(), ENT_QUOTES); ?>">
                     <input type="hidden" name="csrf_token" value="<?= get_csrf_token() ?>">
                     <input type="hidden" name="action" value="create">
 
@@ -162,7 +167,7 @@ $topics = $db->getTopics();
                                             <button onclick="editTopic(<?= htmlspecialchars(json_encode($topic)) ?>)"
                                                     class="btn btn-primary btn-sm">Edit</button>
 
-                                            <form method="POST" style="display:inline;" onsubmit="return confirm('Toggle status?');">
+                                            <form class="u-display-2" method="POST" onsubmit="return confirm('Toggle status?');"><input type="hidden" name="csrf" value="<?php echo htmlspecialchars(quiz_csrf_token(), ENT_QUOTES); ?>">
                                                 <input type="hidden" name="csrf_token" value="<?= get_csrf_token() ?>">
                                                 <input type="hidden" name="action" value="toggle">
                                                 <input type="hidden" name="id" value="<?= $topic['id'] ?>">
@@ -170,7 +175,7 @@ $topics = $db->getTopics();
                                             </form>
 
                                             <?php if ($quizCount == 0): ?>
-                                                <form method="POST" style="display:inline;" onsubmit="return confirm('Delete this topic?');">
+                                                <form class="u-display-2" method="POST" onsubmit="return confirm('Delete this topic?');"><input type="hidden" name="csrf" value="<?php echo htmlspecialchars(quiz_csrf_token(), ENT_QUOTES); ?>">
                                                     <input type="hidden" name="csrf_token" value="<?= get_csrf_token() ?>">
                                                     <input type="hidden" name="action" value="delete">
                                                     <input type="hidden" name="id" value="<?= $topic['id'] ?>">
@@ -195,7 +200,7 @@ $topics = $db->getTopics();
                 <h3>Edit Topic</h3>
                 <button class="modal-close" onclick="closeEditModal()">&times;</button>
             </div>
-            <form method="POST">
+            <form method="POST"><input type="hidden" name="csrf" value="<?php echo htmlspecialchars(quiz_csrf_token(), ENT_QUOTES); ?>">
                 <input type="hidden" name="csrf_token" value="<?= get_csrf_token() ?>">
                 <input type="hidden" name="action" value="update">
                 <input type="hidden" name="id" id="edit_id">
@@ -224,25 +229,6 @@ $topics = $db->getTopics();
         </div>
     </div>
 
-    <script>
-        function editTopic(topic) {
-            document.getElementById('edit_id').value = topic.id;
-            document.getElementById('edit_name').value = topic.name;
-            document.getElementById('edit_description').value = topic.description || '';
-            document.getElementById('edit_enabled').value = topic.enabled;
-            document.getElementById('editModal').classList.add('active');
-        }
-
-        function closeEditModal() {
-            document.getElementById('editModal').classList.remove('active');
-        }
-
-        // Close modal when clicking outside
-        document.getElementById('editModal').addEventListener('click', function(e) {
-            if (e.target === this) {
-                closeEditModal();
-            }
-        });
-    </script>
+    <script src="topics.1.js?v=<?php echo @filemtime(__DIR__."/topics.1.js"); ?>"></script>
 </body>
 </html>

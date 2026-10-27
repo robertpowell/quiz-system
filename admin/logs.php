@@ -1,4 +1,8 @@
 <?php
+require_once __DIR__ . '/../includes/admin_auth.php';
+require_admin();
+quiz_require_csrf();
+
 require_once '../includes/config.php';
 
 $logFiles = [
@@ -28,21 +32,8 @@ if (file_exists($logPath)) {
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>System Logs - Admin</title>
     <link rel="stylesheet" href="../assets/css/style.css">
-    <style>
-        .log-entry {
-            font-family: 'Courier New', monospace;
-            padding: 0.5rem;
-            margin-bottom: 0.25rem;
-            background: #f5f5f5;
-            border-radius: 0.25rem;
-            font-size: 0.875rem;
-            word-wrap: break-word;
-        }
-        .log-timestamp {
-            color: #666;
-            font-weight: 600;
-        }
-    </style>
+    <link rel="stylesheet" href="logs.1.css?v=<?php echo @filemtime(__DIR__."/logs.1.css"); ?>">
+<link rel="stylesheet" href="qsadmin.css?v=<?php echo @filemtime(__DIR__."/qsadmin.css"); ?>">
 </head>
 <body>
     <header>
@@ -91,7 +82,7 @@ if (file_exists($logPath)) {
                 <?php if (empty($logEntries)): ?>
                     <p class="text-center">No log entries yet.</p>
                 <?php else: ?>
-                    <div style="max-height: 600px; overflow-y: auto;">
+                    <div class="u-max-height">
                         <?php foreach ($logEntries as $entry): ?>
                             <div class="log-entry">
                                 <?= htmlspecialchars($entry) ?>
@@ -100,11 +91,11 @@ if (file_exists($logPath)) {
                     </div>
                 <?php endif; ?>
 
-                <div style="padding: 1rem; border-top: 1px solid var(--border);">
+                <div class="u-padding">
                     <button onclick="location.reload()" class="btn btn-primary btn-sm">
                         Refresh Logs
                     </button>
-                    <span style="color: #666; margin-left: 1rem;">
+                    <span class="u-color">
                         Showing last <?= count($logEntries) ?> entries
                     </span>
                 </div>
@@ -112,11 +103,6 @@ if (file_exists($logPath)) {
         </div>
     </main>
 
-    <script>
-        // Auto-refresh every 30 seconds
-        setTimeout(function() {
-            location.reload();
-        }, 30000);
-    </script>
+    <script src="logs.1.js?v=<?php echo @filemtime(__DIR__."/logs.1.js"); ?>"></script>
 </body>
 </html>

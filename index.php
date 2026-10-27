@@ -8,6 +8,7 @@ require_once 'includes/config.php';
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Quiz System</title>
     <link rel="stylesheet" href="assets/css/style.css">
+<link rel="stylesheet" href="qspub.css">
 </head>
 <body>
     <header>
@@ -17,28 +18,28 @@ require_once 'includes/config.php';
     </header>
 
     <main>
-        <div class="container" style="max-width: 800px; margin-top: 4rem;">
+        <div class="container u-max-width">
             <div class="card text-center">
-                <div style="font-size: 5rem; margin: 2rem 0;">🎓</div>
+                <div class="u-font-size">🎓</div>
                 <h2>Welcome to the Quiz System</h2>
-                <p style="font-size: 1.25rem; margin: 2rem 0; line-height: 1.8;">
+                <p class="u-font-size-2">
                     An interactive platform for creating and taking multiple choice quizzes.
                     Perfect for classrooms, training sessions, and educational activities.
                 </p>
 
-                <div class="stats-grid" style="grid-template-columns: 1fr 1fr;">
-                    <a href="participant/join.php" class="btn btn-primary btn-block" style="padding: 2rem;">
-                        <div style="font-size: 3rem;">📱</div>
-                        <div style="font-size: 1.5rem; margin-top: 1rem;">Join Quiz</div>
-                        <div style="font-size: 0.875rem; opacity: 0.9; margin-top: 0.5rem;">
+                <div class="stats-grid u-grid-template-colu">
+                    <a href="participant/join.php" class="btn btn-primary btn-block u-padding">
+                        <div class="u-font-size-3">📱</div>
+                        <div class="u-font-size-4">Join Quiz</div>
+                        <div class="u-font-size-5">
                             Enter your code
                         </div>
                     </a>
 
-                    <a href="admin/" class="btn btn-secondary btn-block" style="padding: 2rem;">
-                        <div style="font-size: 3rem;">⚙️</div>
-                        <div style="font-size: 1.5rem; margin-top: 1rem;">Admin Panel</div>
-                        <div style="font-size: 0.875rem; opacity: 0.9; margin-top: 0.5rem;">
+                    <a href="admin/" class="btn btn-secondary btn-block u-padding">
+                        <div class="u-font-size-3">⚙️</div>
+                        <div class="u-font-size-4">Admin Panel</div>
+                        <div class="u-font-size-5">
                             Manage quizzes
                         </div>
                     </a>
@@ -47,7 +48,7 @@ require_once 'includes/config.php';
 
             <div class="card">
                 <h3>Features</h3>
-                <ul style="line-height: 2; text-align: left;">
+                <ul class="u-line-height">
                     <li>✅ Easy quiz management with CSV/JSON upload</li>
                     <li>✅ QR code generation for quick participant joining</li>
                     <li>✅ Random question selection from question pools</li>
@@ -62,19 +63,19 @@ require_once 'includes/config.php';
 
             <div class="card">
                 <h3>How It Works</h3>
-                <div class="stats-grid" style="grid-template-columns: 1fr 1fr 1fr;">
-                    <div style="text-align: center;">
-                        <div style="font-size: 3rem;">1️⃣</div>
+                <div class="stats-grid u-grid-template-colu-2">
+                    <div class="u-text-align">
+                        <div class="u-font-size-3">1️⃣</div>
                         <h4>Create</h4>
                         <p>Upload your quiz questions via CSV or JSON</p>
                     </div>
-                    <div style="text-align: center;">
-                        <div style="font-size: 3rem;">2️⃣</div>
+                    <div class="u-text-align">
+                        <div class="u-font-size-3">2️⃣</div>
                         <h4>Launch</h4>
                         <p>Start a session and share the QR code</p>
                     </div>
-                    <div style="text-align: center;">
-                        <div style="font-size: 3rem;">3️⃣</div>
+                    <div class="u-text-align">
+                        <div class="u-font-size-3">3️⃣</div>
                         <h4>Play</h4>
                         <p>Participants join and answer questions</p>
                     </div>
@@ -83,7 +84,7 @@ require_once 'includes/config.php';
         </div>
     </main>
 
-    <footer style="text-align: center; padding: 2rem; color: #666; margin-top: 4rem; border-top: 1px solid #e5e7eb;">
+    <footer class="u-text-align-2">
         <p>Quiz System | Built with PHP, JavaScript, and SQLite</p>
     </footer>
 </body>

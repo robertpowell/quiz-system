@@ -1,0 +1,71 @@
+/* One <style> block, lifted in place. Separate per block: merging
+   blocks changes which rule wins. */
+
+.question-nav {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 0.5rem;
+            margin-bottom: 2rem;
+            justify-content: center;
+        }
+
+        .question-nav-btn {
+            width: 50px;
+            height: 50px;
+            border-radius: 50%;
+            border: 2px solid var(--border);
+            background: white;
+            cursor: pointer;
+            font-weight: 600;
+            transition: all 0.3s;
+        }
+
+        .question-nav-btn:hover {
+            border-color: var(--primary);
+        }
+
+        .question-nav-btn.current {
+            background: var(--primary);
+            color: white;
+            border-color: var(--primary);
+        }
+
+        .question-nav-btn.answered {
+            background: var(--success);
+            color: white;
+            border-color: var(--success);
+        }
+
+        .fixed-timer {
+            position: fixed;
+            top: 0.5rem;
+            right: 0.5rem;
+            background: white;
+            padding: 0.4rem 0.8rem;
+            border-radius: 0.4rem;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+            z-index: 100;
+            font-size: 0.85rem;
+        }
+
+        .fixed-timer .stat-label {
+            font-size: 0.7rem;
+            margin-bottom: 0.1rem;
+        }
+
+        .fixed-timer .timer {
+            font-size: 1.1rem;
+        }
+
+        @media (max-width: 768px) {
+            .fixed-timer {
+                top: 0;
+                right: 0;
+                left: 0;
+                border-radius: 0;
+            }
+        }
+
+        .question-container {
+            scroll-margin-top: 70px;
+        }

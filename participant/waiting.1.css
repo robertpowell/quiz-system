@@ -1,0 +1,33 @@
+/* One <style> block, lifted in place. Separate per block: merging
+   blocks changes which rule wins. */
+
+.your-color {
+            width: 150px;
+            height: 150px;
+            border-radius: 50%;
+            margin: 2rem auto;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 3rem;
+            font-weight: 700;
+            box-shadow: 0 10px 25px rgba(0,0,0,0.2);
+            animation: pulse-slow 2s infinite;
+        }
+
+        @keyframes pulse-slow {
+            0%, 100% { transform: scale(1); }
+            50% { transform: scale(1.05); }
+        }
+
+        .waiting-message {
+            font-size: 1.5rem;
+            text-align: center;
+            margin: 2rem 0;
+            animation: fade 2s infinite;
+        }
+
+        @keyframes fade {
+            0%, 100% { opacity: 1; }
+            50% { opacity: 0.5; }
+        }

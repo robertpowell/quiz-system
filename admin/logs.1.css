@@ -1,0 +1,16 @@
+/* One <style> block, lifted in place. Separate per block: merging
+   blocks changes which rule wins. */
+
+.log-entry {
+            font-family: 'Courier New', monospace;
+            padding: 0.5rem;
+            margin-bottom: 0.25rem;
+            background: #f5f5f5;
+            border-radius: 0.25rem;
+            font-size: 0.875rem;
+            word-wrap: break-word;
+        }
+        .log-timestamp {
+            color: #666;
+            font-weight: 600;
+        }

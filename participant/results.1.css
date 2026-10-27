@@ -1,0 +1,37 @@
+/* One <style> block, lifted in place. Separate per block: merging
+   blocks changes which rule wins. */
+
+.confetti {
+            position: fixed;
+            width: 10px;
+            height: 10px;
+            background: #f0f;
+            position: absolute;
+            animation: confetti-fall 3s linear;
+        }
+
+        @keyframes confetti-fall {
+            to {
+                transform: translateY(100vh) rotate(360deg);
+                opacity: 0;
+            }
+        }
+
+        .trophy {
+            font-size: 5rem;
+            margin: 2rem 0;
+        }
+
+        .grade {
+            font-size: 1.5rem;
+            font-weight: 700;
+            padding: 0.5rem 1.5rem;
+            border-radius: 0.5rem;
+            display: inline-block;
+            margin: 1rem 0;
+        }
+
+        .grade-a { background: #10B981; color: white; }
+        .grade-b { background: #3B82F6; color: white; }
+        .grade-c { background: #F59E0B; color: white; }
+        .grade-d { background: #EF4444; color: white; }

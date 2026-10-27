@@ -1,0 +1,17 @@
+/* Declarations lifted from style="" attributes. Shared is safe:
+   each rule applies only where its class is referenced. */
+
+.u-font-size { font-size: 1.5rem; }
+.u-flex { flex: 1; }
+.u-background-color { background-color: ${p.color_hex}20; }
+.u-background-color-2 { background-color: ${p.color_hex}; color: ${p.color_text}; }
+.u-max-height { max-height: 600px; overflow-y: auto; }
+.u-padding { padding: 1rem; border-top: 1px solid var(--border); }
+.u-color { color: #666; margin-left: 1rem; }
+.u-display { display: flex; align-items: center; gap: 0.5rem; margin-bottom: 1rem; }
+.u-font-weight { font-weight: 600; }
+.u-display-2 { display:inline; }
+.u-font-size-2 { font-size: 1rem; }
+.u-font-size-3 { font-size: 1.25rem; }
+.u-display-3 { display: flex; align-items: center; gap: 0.5rem; }
+.u-background { background: #f5f5f5; padding: 1rem; border-radius: 0.5rem; overflow-x: auto; }

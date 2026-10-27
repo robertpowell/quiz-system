@@ -65,7 +65,6 @@ class QRCodeGenerator {
 
         // Save image
         $result = imagepng($image, $filename);
-        imagedestroy($image);
 
         return $result;
     }

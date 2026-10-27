@@ -1,4 +1,8 @@
 <?php
+require_once __DIR__ . '/../includes/admin_auth.php';
+require_admin();
+quiz_require_csrf();
+
 require_once '../includes/config.php';
 require_once '../includes/db.php';
 
@@ -63,6 +67,7 @@ $topics = $db->getTopics(true);
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Manage Quizzes - Quiz System</title>
     <link rel="stylesheet" href="../assets/css/style.css">
+<link rel="stylesheet" href="qsadmin.css?v=<?php echo @filemtime(__DIR__."/qsadmin.css"); ?>">
 </head>
 <body>
     <header>
@@ -137,14 +142,14 @@ $topics = $db->getTopics(true);
                                             <button onclick="editQuiz(<?= htmlspecialchars(json_encode($quiz)) ?>)"
                                                     class="btn btn-primary btn-sm">Edit</button>
 
-                                            <form method="POST" style="display:inline;" onsubmit="return confirm('Toggle status?');">
+                                            <form class="u-display-2" method="POST" onsubmit="return confirm('Toggle status?');"><input type="hidden" name="csrf" value="<?php echo htmlspecialchars(quiz_csrf_token(), ENT_QUOTES); ?>">
                                                 <input type="hidden" name="csrf_token" value="<?= get_csrf_token() ?>">
                                                 <input type="hidden" name="action" value="toggle">
                                                 <input type="hidden" name="id" value="<?= $quiz['id'] ?>">
                                                 <button type="submit" class="btn btn-warning btn-sm">Toggle</button>
                                             </form>
 
-                                            <form method="POST" style="display:inline;" onsubmit="return confirm('Delete this quiz and all its questions?');">
+                                            <form class="u-display-2" method="POST" onsubmit="return confirm('Delete this quiz and all its questions?');"><input type="hidden" name="csrf" value="<?php echo htmlspecialchars(quiz_csrf_token(), ENT_QUOTES); ?>">
                                                 <input type="hidden" name="csrf_token" value="<?= get_csrf_token() ?>">
                                                 <input type="hidden" name="action" value="delete">
                                                 <input type="hidden" name="id" value="<?= $quiz['id'] ?>">
@@ -168,7 +173,7 @@ $topics = $db->getTopics(true);
                 <h3>Edit Quiz</h3>
                 <button class="modal-close" onclick="closeEditModal()">&times;</button>
             </div>
-            <form method="POST">
+            <form method="POST"><input type="hidden" name="csrf" value="<?php echo htmlspecialchars(quiz_csrf_token(), ENT_QUOTES); ?>">
                 <input type="hidden" name="csrf_token" value="<?= get_csrf_token() ?>">
                 <input type="hidden" name="action" value="update">
                 <input type="hidden" name="id" id="edit_id">
@@ -208,27 +213,6 @@ $topics = $db->getTopics(true);
         </div>
     </div>
 
-    <script>
-        function editQuiz(quiz) {
-            document.getElementById('edit_id').value = quiz.id;
-            document.getElementById('edit_name').value = quiz.name;
-            document.getElementById('edit_description').value = quiz.description || '';
-            document.getElementById('edit_time_limit').value = Math.floor(quiz.time_limit / 60);
-            document.getElementById('edit_questions_per_quiz').value = quiz.questions_per_quiz;
-            document.getElementById('edit_enabled').value = quiz.enabled;
-            document.getElementById('editModal').classList.add('active');
-        }
-
-        function closeEditModal() {
-            document.getElementById('editModal').classList.remove('active');
-        }
-
-        // Close modal when clicking outside
-        document.getElementById('editModal').addEventListener('click', function(e) {
-            if (e.target === this) {
-                closeEditModal();
-            }
-        });
-    </script>
+    <script src="quizzes.1.js?v=<?php echo @filemtime(__DIR__."/quizzes.1.js"); ?>"></script>
 </body>
 </html>

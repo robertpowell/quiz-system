@@ -1,4 +1,8 @@
 <?php
+require_once __DIR__ . '/../includes/admin_auth.php';
+require_admin();
+quiz_require_csrf();
+
 require_once '../includes/config.php';
 require_once '../includes/db.php';
 require_once '../includes/qr-generator.php';
@@ -84,32 +88,10 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['action'])) {
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Launch Quiz - <?= htmlspecialchars($quiz['name']) ?></title>
     <link rel="stylesheet" href="../assets/css/style.css">
-    <style>
-        .qr-container {
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            padding: 2rem;
-            background: white;
-            border-radius: 0.5rem;
-            box-shadow: 0 4px 6px rgba(0,0,0,0.1);
-        }
-        #qrcode {
-            margin: 1rem 0;
-        }
-        #qrcode canvas {
-            border: 4px solid #E5E7EB;
-            border-radius: 0.5rem;
-        }
-        .participant-count {
-            font-size: 3rem;
-            font-weight: 700;
-            color: var(--primary);
-            margin: 1rem 0;
-        }
-    </style>
+    <link rel="stylesheet" href="launch-quiz.1.css?v=<?php echo @filemtime(__DIR__."/launch-quiz.1.css"); ?>">
+<link rel="stylesheet" href="qsadmin.css?v=<?php echo @filemtime(__DIR__."/qsadmin.css"); ?>">
 </head>
-<body>
+<bodyUTF-8") ? data-launch-config='<?= htmlspecialchars(json_encode(["joinUrl" => $joinUrl, "sessionId" => $sessionId]), ENT_QUOTES, "UTF-8") ?>'>">
     <header>
         <div class="container">
             <h1>Quiz System Admin</h1>
@@ -131,7 +113,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['action'])) {
             <div class="stats-grid mb-3">
                 <div class="stat-card">
                     <div class="stat-label">Topic</div>
-                    <div class="stat-value" style="font-size: 1.5rem;">
+                    <div class="stat-value u-font-size">
                         <?= htmlspecialchars($quiz['topic_name']) ?>
                     </div>
                 </div>
@@ -176,8 +158,8 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['action'])) {
                         <p class="text-center">Waiting for participants to join...</p>
                     <?php else: ?>
                         <?php foreach ($participants as $participant): ?>
-                            <div class="participant-card" style="background-color: <?= $participant['color_hex'] ?>20;">
-                                <div class="participant-color" style="background-color: <?= $participant['color_hex'] ?>; color: <?= $participant['color_text'] ?>;">
+                            <div class="participant-card" data-style="background-color: <?= $participant['color_hex'] ?>20;">
+                                <div class="participant-color" data-style="background-color: <?= $participant['color_hex'] ?>; color: <?= $participant['color_text'] ?>;">
                                     <?= strtoupper(substr($participant['color_name'], 0, 2)) ?>
                                 </div>
                                 <div class="participant-info">
@@ -193,7 +175,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['action'])) {
             <!-- Action Buttons -->
             <div class="card">
                 <div class="flex-between gap-2">
-                    <form method="POST" style="flex: 1;">
+                    <form class="u-flex" method="POST"><input type="hidden" name="csrf" value="<?php echo htmlspecialchars(quiz_csrf_token(), ENT_QUOTES); ?>">
                         <input type="hidden" name="csrf_token" value="<?= get_csrf_token() ?>">
                         <input type="hidden" name="action" value="cancel">
                         <button type="submit" class="btn btn-danger btn-block"
@@ -202,7 +184,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['action'])) {
                         </button>
                     </form>
 
-                    <form method="POST" style="flex: 1;">
+                    <form class="u-flex" method="POST"><input type="hidden" name="csrf" value="<?php echo htmlspecialchars(quiz_csrf_token(), ENT_QUOTES); ?>">
                         <input type="hidden" name="csrf_token" value="<?= get_csrf_token() ?>">
                         <input type="hidden" name="action" value="start">
                         <button type="submit" class="btn btn-primary btn-block"
@@ -218,70 +200,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['action'])) {
 
     <!-- QR Code Library -->
     <script src="https://cdn.jsdelivr.net/npm/qrcodejs@1.0.0/qrcode.min.js"></script>
-    <script>
-        // Generate QR code
-        new QRCode(document.getElementById("qrcode"), {
-            text: "<?= $joinUrl ?>",
-            width: 300,
-            height: 300,
-            colorDark : "#000000",
-            colorLight : "#ffffff",
-            correctLevel : QRCode.CorrectLevel.H
-        });
-
-        // Auto-refresh participant list every 3 seconds
-        setInterval(function() {
-            fetch('../api/get-participants.php?session=<?= $sessionId ?>')
-                .then(response => response.json())
-                .then(data => {
-                    if (data.success) {
-                        updateParticipantList(data.participants);
-                        updateParticipantCount(data.participants.length);
-                    }
-                })
-                .catch(error => console.error('Error:', error));
-        }, 3000);
-
-        function updateParticipantCount(count) {
-            document.getElementById('participantCount').textContent = count;
-            document.getElementById('participantListCount').textContent = count;
-
-            // Update start button
-            const startBtn = document.getElementById('startBtn');
-            startBtn.textContent = `Start Quiz (${count} participants)`;
-            startBtn.disabled = count === 0;
-        }
-
-        function updateParticipantList(participants) {
-            const listDiv = document.getElementById('participantList');
-
-            if (participants.length === 0) {
-                listDiv.innerHTML = '<p class="text-center">Waiting for participants to join...</p>';
-                return;
-            }
-
-            let html = '';
-            participants.forEach(p => {
-                const joinTime = new Date(p.joined_at).toLocaleTimeString('en-US', {
-                    hour: '2-digit',
-                    minute: '2-digit'
-                });
-
-                html += `
-                    <div class="participant-card" style="background-color: ${p.color_hex}20;">
-                        <div class="participant-color" style="background-color: ${p.color_hex}; color: ${p.color_text};">
-                            ${p.color_name.substring(0, 2).toUpperCase()}
-                        </div>
-                        <div class="participant-info">
-                            <div class="participant-name">${p.color_name}</div>
-                            <div class="participant-status">Joined ${joinTime}</div>
-                        </div>
-                    </div>
-                `;
-            });
-
-            listDiv.innerHTML = html;
-        }
-    </script>
+    <script src="launch-quiz.js?v=<?php echo @filemtime(__DIR__."/launch-quiz.js"); ?>"></script>
+<script src="qsadmin-style.js?v=<?php echo @filemtime(__DIR__."/qsadmin-style.js"); ?>"></script>
 </body>
 </html>

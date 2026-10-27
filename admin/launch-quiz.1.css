@@ -1,0 +1,25 @@
+/* One <style> block, lifted in place. Separate per block: merging
+   blocks changes which rule wins. */
+
+.qr-container {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            padding: 2rem;
+            background: white;
+            border-radius: 0.5rem;
+            box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+        }
+        #qrcode {
+            margin: 1rem 0;
+        }
+        #qrcode canvas {
+            border: 4px solid #E5E7EB;
+            border-radius: 0.5rem;
+        }
+        .participant-count {
+            font-size: 3rem;
+            font-weight: 700;
+            color: var(--primary);
+            margin: 1rem 0;
+        }

@@ -1,13 +1,17 @@
 <?php
 // Configuration file for Quiz System
 
+// Data and logs live outside the web root (RoPo, 2026-10-27). Under
+// /var/www/html they were downloadable; Apache now 404s the old paths.
+define('DATA_DIR', '/var/lib/quiz-system/data');
+
 // Database configuration
-define('DB_PATH', __DIR__ . '/../data/quiz_database.sqlite');
+define('DB_PATH', DATA_DIR . '/quiz_database.sqlite');
 
 // Paths
 define('BASE_PATH', dirname(__DIR__));
-define('UPLOAD_PATH', BASE_PATH . '/data/quizzes');
-define('LOG_PATH', BASE_PATH . '/logs');
+define('UPLOAD_PATH', DATA_DIR . '/quizzes');
+define('LOG_PATH', '/var/log/quiz-system');
 define('ASSETS_PATH', BASE_PATH . '/assets');
 
 // Application settings
@@ -19,14 +23,34 @@ define('COLORS_FILE', ASSETS_PATH . '/colors.json');
 // Timezone
 date_default_timezone_set('UTC');
 
-// Error reporting (disable in production)
+// Error reporting.
+//
+// display_errors is OFF, as the old comment here ("disable in production")
+// always intended. This app was the only thing on the box turning it back on --
+// /etc/php/8.4/fpm/php.ini has it Off globally -- so a PHP notice or warning
+// anywhere in quiz-system was rendered into the response body and shipped to
+// the visitor. That leaks file paths and internals, and it is also what turned
+// every admin page into a 403 once: ModSecurity's outbound rules correctly read
+// a rendered PHP warning as information disclosure.
+//
+// Errors are still recorded: log_errors is On globally, so they go to the
+// PHP-FPM log. Nothing is being silenced, only kept out of the page.
 error_reporting(E_ALL);
-ini_set('display_errors', 1);
+ini_set('display_errors', 0);
+ini_set('display_startup_errors', 0);
+ini_set('log_errors', 1);
 
 // Session configuration (only for web requests, not CLI)
 if (php_sapi_name() !== 'cli') {
-    ini_set('session.cookie_httponly', 1);
-    ini_set('session.use_strict_mode', 1);
+    // Only settable before a session starts. The admin gate
+    // (includes/admin_auth.php) starts one first and already sets HttpOnly,
+    // Secure and SameSite=Strict on its own cookie, so calling these with an
+    // active session just emits a warning -- which ModSecurity then blocks as
+    // information disclosure, turning every admin page into a 403.
+    if (session_status() === PHP_SESSION_NONE) {
+        ini_set('session.cookie_httponly', 1);
+        ini_set('session.use_strict_mode', 1);
+    }
 
     // CSRF Protection
     if (session_status() === PHP_SESSION_NONE) {

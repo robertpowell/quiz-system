@@ -71,78 +71,10 @@ if ($timeRemaining == 0 && !$participant['completed_at']) {
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title><?= htmlspecialchars($quiz['name']) ?></title>
     <link rel="stylesheet" href="../assets/css/style.css">
-    <style>
-        .question-nav {
-            display: flex;
-            flex-wrap: wrap;
-            gap: 0.5rem;
-            margin-bottom: 2rem;
-            justify-content: center;
-        }
-
-        .question-nav-btn {
-            width: 50px;
-            height: 50px;
-            border-radius: 50%;
-            border: 2px solid var(--border);
-            background: white;
-            cursor: pointer;
-            font-weight: 600;
-            transition: all 0.3s;
-        }
-
-        .question-nav-btn:hover {
-            border-color: var(--primary);
-        }
-
-        .question-nav-btn.current {
-            background: var(--primary);
-            color: white;
-            border-color: var(--primary);
-        }
-
-        .question-nav-btn.answered {
-            background: var(--success);
-            color: white;
-            border-color: var(--success);
-        }
-
-        .fixed-timer {
-            position: fixed;
-            top: 0.5rem;
-            right: 0.5rem;
-            background: white;
-            padding: 0.4rem 0.8rem;
-            border-radius: 0.4rem;
-            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
-            z-index: 100;
-            font-size: 0.85rem;
-        }
-
-        .fixed-timer .stat-label {
-            font-size: 0.7rem;
-            margin-bottom: 0.1rem;
-        }
-
-        .fixed-timer .timer {
-            font-size: 1.1rem;
-        }
-
-        @media (max-width: 768px) {
-            .fixed-timer {
-                top: 0;
-                right: 0;
-                left: 0;
-                border-radius: 0;
-            }
-        }
-
-        .question-container {
-            scroll-margin-top: 70px;
-        }
-    </style>
+    <link rel="stylesheet" href="quiz.1.css?v=<?php echo @filemtime(__DIR__."/quiz.1.css"); ?>">
+<link rel="stylesheet" href="../qspub.css">
 </head>
-<body>
+<body data-quiz-config='<?= htmlspecialchars(json_encode(["participantId" => $participantId, "answeredQuestionIds" => $answeredQuestionIds, "questions" => $questions]), ENT_QUOTES, "UTF-8") ?>'>
     <!-- Fixed Timer -->
     <div class="fixed-timer">
         <div class="stat-label text-center">Time Remaining</div>
@@ -151,15 +83,15 @@ if ($timeRemaining == 0 && !$participant['completed_at']) {
         </div>
     </div>
 
-    <main style="padding-top: 6rem;">
-        <div class="container" style="max-width: 800px;">
+    <main class="u-padding-top">
+        <div class="container u-max-width-3">
             <!-- Your Color Badge -->
-            <div class="card text-center" style="background: linear-gradient(135deg, <?= $participant['color_hex'] ?>20, white);">
-                <div style="display: inline-flex; align-items: center; gap: 1rem;">
-                    <div style="width: 40px; height: 40px; border-radius: 50%; background: <?= $participant['color_hex'] ?>; color: <?= $participant['color_text'] ?>; display: flex; align-items: center; justify-content: center; font-weight: 700;">
+            <div class="card text-center" data-style="background: linear-gradient(135deg, <?= $participant['color_hex'] ?>20, white);">
+                <div class="u-display">
+                    <div data-style="width: 40px; height: 40px; border-radius: 50%; background: <?= $participant['color_hex'] ?>; color: <?= $participant['color_text'] ?>; display: flex; align-items: center; justify-content: center; font-weight: 700;">
                         <?= strtoupper(substr($participant['color_name'], 0, 2)) ?>
                     </div>
-                    <span style="font-weight: 600; font-size: 1.25rem;"><?= $participant['color_name'] ?></span>
+                    <span class="u-font-weight"><?= $participant['color_name'] ?></span>
                 </div>
             </div>
 
@@ -183,7 +115,7 @@ if ($timeRemaining == 0 && !$participant['completed_at']) {
 
             <!-- Questions -->
             <?php foreach ($questions as $index => $question): ?>
-                <div class="question-container" id="question-<?= $index ?>" style="display: <?= $index == 0 ? 'block' : 'none' ?>;">
+                <div class="question-container" id="question-<?= $index ?>" data-style="display: <?= $index == 0 ? 'block' : 'none' ?>;">
                     <div class="question-number">
                         Question <?= $index + 1 ?> of <?= count($questions) ?>
                     </div>
@@ -244,144 +176,7 @@ if ($timeRemaining == 0 && !$participant['completed_at']) {
         </div>
     </main>
 
-    <script>
-        const questions = <?= json_encode($questions) ?>;
-        const answeredQuestions = new Set(<?= json_encode($answeredQuestionIds) ?>);
-        let currentQuestion = 0;
-
-        // Timer
-        function updateTimer() {
-            const timerEl = document.getElementById('timer');
-            const endTime = parseInt(timerEl.dataset.endTime);
-            const now = Math.floor(Date.now() / 1000);
-            const remaining = Math.max(0, endTime - now);
-
-            const minutes = Math.floor(remaining / 60);
-            const seconds = remaining % 60;
-
-            timerEl.textContent = `${minutes}:${seconds.toString().padStart(2, '0')}`;
-
-            // Change color based on time
-            timerEl.className = 'timer';
-            if (remaining < 60) {
-                timerEl.classList.add('danger');
-            } else if (remaining < 180) {
-                timerEl.classList.add('warning');
-            }
-
-            // Auto-submit when time is up
-            if (remaining === 0) {
-                alert('Time is up! Submitting your quiz...');
-                window.location.href = 'results.php';
-            }
-        }
-
-        setInterval(updateTimer, 1000);
-        updateTimer();
-
-        // Navigation
-        function showQuestion(index) {
-            // Hide current question
-            document.getElementById(`question-${currentQuestion}`).style.display = 'none';
-            document.getElementById(`nav-${currentQuestion}`).classList.remove('current');
-
-            // Show new question
-            currentQuestion = index;
-            const questionEl = document.getElementById(`question-${currentQuestion}`);
-            questionEl.style.display = 'block';
-            document.getElementById(`nav-${currentQuestion}`).classList.add('current');
-
-            // Scroll to question section
-            questionEl.scrollIntoView({ behavior: 'smooth', block: 'start' });
-        }
-
-        // Answer selection
-        function selectAnswer(questionIndex, option, questionId) {
-            if (answeredQuestions.has(questionId)) {
-                return; // Already answered
-            }
-
-            // Submit answer
-            fetch('../api/submit-answer.php', {
-                method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json',
-                },
-                body: JSON.stringify({
-                    participant_id: <?= $participantId ?>,
-                    question_id: questionId,
-                    selected_answer: option
-                })
-            })
-            .then(response => response.json())
-            .then(data => {
-                if (data.success) {
-                    answeredQuestions.add(questionId);
-
-                    // Mark as answered in UI
-                    document.getElementById(`nav-${questionIndex}`).classList.add('answered');
-
-                    // Disable all options for this question
-                    const buttons = document.querySelectorAll(`[data-question-id="${questionId}"]`);
-                    buttons.forEach(btn => {
-                        btn.disabled = true;
-                        if (btn.dataset.option === option) {
-                            btn.classList.add('selected');
-                        }
-                    });
-
-                    // Auto-advance to next question
-                    setTimeout(() => {
-                        if (questionIndex < questions.length - 1) {
-                            showQuestion(questionIndex + 1);
-                        }
-                    }, 500);
-                }
-            })
-            .catch(error => {
-                console.error('Error:', error);
-                alert('Failed to submit answer. Please try again.');
-            });
-        }
-
-        function finishQuiz() {
-            const unanswered = questions.length - answeredQuestions.size;
-
-            if (unanswered > 0) {
-                if (!confirm(`You have ${unanswered} unanswered question(s). Are you sure you want to finish?`)) {
-                    return;
-                }
-            }
-
-            // Mark as complete
-            fetch('../api/complete-quiz.php', {
-                method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json',
-                },
-                body: JSON.stringify({
-                    participant_id: <?= $participantId ?>
-                })
-            })
-            .then(response => response.json())
-            .then(data => {
-                if (data.success) {
-                    window.location.href = 'results.php';
-                }
-            })
-            .catch(error => {
-                console.error('Error:', error);
-                alert('Failed to submit quiz. Please try again.');
-            });
-        }
-
-        // Prevent accidental page refresh
-        window.addEventListener('beforeunload', function(e) {
-            if (answeredQuestions.size < questions.length) {
-                e.preventDefault();
-                e.returnValue = '';
-            }
-        });
-    </script>
+    <script src="quiz.page.js?v=<?php echo @filemtime(__DIR__."/quiz.page.js"); ?>"></script>
+<script src="../qspub-style.js"></script>
 </body>
 </html>

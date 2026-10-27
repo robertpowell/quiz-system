@@ -1,0 +1,59 @@
+/* One <style> block, lifted in place. Separate per block: merging
+   blocks changes which rule wins. */
+
+.privacy-container {
+            max-width: 700px;
+            margin: 2rem auto;
+            padding: 0 1rem;
+        }
+
+        .privacy-header {
+            margin-bottom: 2rem;
+            padding-bottom: 1rem;
+            border-bottom: 2px solid var(--border);
+        }
+
+        .privacy-header h1 {
+            color: var(--primary);
+            margin-bottom: 0.5rem;
+        }
+
+        .privacy-header p {
+            color: #666;
+            font-size: 0.9rem;
+        }
+
+        .section {
+            margin-bottom: 1.5rem;
+        }
+
+        .section h2 {
+            font-size: 1.1rem;
+            color: var(--dark);
+            margin-bottom: 0.75rem;
+        }
+
+        .section p, .section ul {
+            color: #555;
+            font-size: 0.95rem;
+            line-height: 1.6;
+        }
+
+        .section ul {
+            margin-left: 1.5rem;
+            margin-top: 0.5rem;
+        }
+
+        .section li {
+            margin-bottom: 0.4rem;
+        }
+
+        .highlight {
+            color: var(--primary);
+            font-weight: 600;
+        }
+
+        .back-link {
+            display: inline-block;
+            margin-top: 1.5rem;
+        }

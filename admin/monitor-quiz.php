@@ -1,4 +1,8 @@
 <?php
+require_once __DIR__ . '/../includes/admin_auth.php';
+require_admin();
+quiz_require_csrf();
+
 require_once '../includes/config.php';
 require_once '../includes/db.php';
 
@@ -46,16 +50,10 @@ $timeRemaining = max(0, $endTime - $currentTime);
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Monitor Quiz - <?= htmlspecialchars($quiz['name']) ?></title>
     <link rel="stylesheet" href="../assets/css/style.css">
-    <style>
-        .progress-grid {
-            display: grid;
-            grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
-            gap: 1rem;
-            margin: 2rem 0;
-        }
-    </style>
+    <link rel="stylesheet" href="monitor-quiz.1.css?v=<?php echo @filemtime(__DIR__."/monitor-quiz.1.css"); ?>">
+<link rel="stylesheet" href="qsadmin.css?v=<?php echo @filemtime(__DIR__."/qsadmin.css"); ?>">
 </head>
-<body>
+<body data-monitor-config='<?= htmlspecialchars(json_encode(["sessionId" => $sessionId]), ENT_QUOTES, "UTF-8") ?>'>
     <header>
         <div class="container">
             <h1>Quiz System Admin</h1>
@@ -78,7 +76,7 @@ $timeRemaining = max(0, $endTime - $currentTime);
             <div class="stats-grid">
                 <div class="stat-card">
                     <div class="stat-label">Session Code</div>
-                    <div class="stat-value" style="font-size: 1.5rem;">
+                    <div class="stat-value u-font-size">
                         <?= $session['session_code'] ?>
                     </div>
                 </div>
@@ -127,7 +125,7 @@ $timeRemaining = max(0, $endTime - $currentTime);
                 <h3 class="card-title">Overall Progress</h3>
                 <div class="progress">
                     <div class="progress-bar" id="progressBar"
-                         style="width: <?= $stats['total_participants'] > 0 ? ($stats['completed_participants'] / $stats['total_participants']) * 100 : 0 ?>%">
+                         data-style="width: <?= $stats['total_participants'] > 0 ? ($stats['completed_participants'] / $stats['total_participants']) * 100 : 0 ?>%">
                         <?= $stats['completed_participants'] ?> / <?= $stats['total_participants'] ?>
                     </div>
                 </div>
@@ -140,19 +138,19 @@ $timeRemaining = max(0, $endTime - $currentTime);
                 </div>
                 <div class="progress-grid" id="participantGrid">
                     <?php foreach ($participants as $participant): ?>
-                        <div class="stat-card" style="background: linear-gradient(135deg, <?= $participant['color_hex'] ?>20, white); border-left: 4px solid <?= $participant['color_hex'] ?>;">
-                            <div style="display: flex; align-items: center; gap: 0.5rem; margin-bottom: 1rem;">
-                                <div style="width: 40px; height: 40px; border-radius: 50%; background: <?= $participant['color_hex'] ?>; color: <?= $participant['color_text'] ?>; display: flex; align-items: center; justify-content: center; font-weight: 700;">
+                        <div class="stat-card" data-style="background: linear-gradient(135deg, <?= $participant['color_hex'] ?>20, white); border-left: 4px solid <?= $participant['color_hex'] ?>;">
+                            <div class="u-display">
+                                <div data-style="width: 40px; height: 40px; border-radius: 50%; background: <?= $participant['color_hex'] ?>; color: <?= $participant['color_text'] ?>; display: flex; align-items: center; justify-content: center; font-weight: 700;">
                                     <?= strtoupper(substr($participant['color_name'], 0, 2)) ?>
                                 </div>
-                                <div style="font-weight: 600;">
+                                <div class="u-font-weight">
                                     <?= $participant['color_name'] ?>
                                 </div>
                             </div>
 
                             <?php if ($participant['completed_at']): ?>
                                 <div class="badge badge-success">✓ Completed</div>
-                                <div style="font-size: 1.5rem; font-weight: 700; color: <?= $participant['color_hex'] ?>; margin-top: 0.5rem;">
+                                <div data-style="font-size: 1.5rem; font-weight: 700; color: <?= $participant['color_hex'] ?>; margin-top: 0.5rem;">
                                     <?= $participant['score'] ?> / <?= $quiz['questions_per_quiz'] ?>
                                 </div>
                             <?php else: ?>
@@ -165,7 +163,7 @@ $timeRemaining = max(0, $endTime - $currentTime);
 
             <!-- Actions -->
             <div class="card">
-                <form method="POST" onsubmit="return confirm('End this quiz session? All unfinished participants will be auto-submitted.');">
+                <form method="POST" onsubmit="return confirm('End this quiz session? All unfinished participants will be auto-submitted.');"><input type="hidden" name="csrf" value="<?php echo htmlspecialchars(quiz_csrf_token(), ENT_QUOTES); ?>">
                     <input type="hidden" name="csrf_token" value="<?= get_csrf_token() ?>">
                     <input type="hidden" name="action" value="end">
                     <button type="submit" class="btn btn-danger btn-block">
@@ -176,60 +174,7 @@ $timeRemaining = max(0, $endTime - $currentTime);
         </div>
     </main>
 
-    <script>
-        // Update timer
-        function updateTimer() {
-            const timerEl = document.getElementById('timer');
-            const endTime = parseInt(timerEl.dataset.endTime);
-            const now = Math.floor(Date.now() / 1000);
-            const remaining = Math.max(0, endTime - now);
-
-            const minutes = Math.floor(remaining / 60);
-            const seconds = remaining % 60;
-
-            timerEl.textContent = `${minutes}:${seconds.toString().padStart(2, '0')}`;
-
-            // Change color based on time
-            timerEl.className = 'timer';
-            if (remaining < 60) {
-                timerEl.classList.add('danger');
-            } else if (remaining < 180) {
-                timerEl.classList.add('warning');
-            }
-
-            // Auto-refresh when time is up
-            if (remaining === 0) {
-                setTimeout(() => location.reload(), 2000);
-            }
-        }
-
-        setInterval(updateTimer, 1000);
-        updateTimer();
-
-        // Auto-refresh participants every 3 seconds
-        setInterval(function() {
-            fetch('../api/get-session-progress.php?session=<?= $sessionId ?>')
-                .then(response => response.json())
-                .then(data => {
-                    if (data.success) {
-                        document.getElementById('completedCount').textContent = data.completed;
-
-                        const total = data.total;
-                        const completed = data.completed;
-                        const percentage = total > 0 ? (completed / total) * 100 : 0;
-
-                        const progressBar = document.getElementById('progressBar');
-                        progressBar.style.width = percentage + '%';
-                        progressBar.textContent = `${completed} / ${total}`;
-
-                        // If all completed, show option to end
-                        if (completed === total && total > 0) {
-                            // Could add a notification here
-                        }
-                    }
-                })
-                .catch(error => console.error('Error:', error));
-        }, 3000);
-    </script>
+    <script src="monitor-quiz.js?v=<?php echo @filemtime(__DIR__."/monitor-quiz.js"); ?>"></script>
+<script src="qsadmin-style.js?v=<?php echo @filemtime(__DIR__."/qsadmin-style.js"); ?>"></script>
 </body>
 </html>

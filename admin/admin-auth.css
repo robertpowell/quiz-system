@@ -1,0 +1,20 @@
+/* Sign-in page styling. External, not inline: the site serves
+   style-src 'self' with no nonce, so an inline block would be dropped and the
+   form would render unstyled. */
+.qa-page { margin:0; min-height:100vh; display:flex; align-items:center;
+           justify-content:center; background:#0f172a;
+           font-family:system-ui,-apple-system,'Segoe UI',sans-serif; }
+.qa-card { background:#fff; padding:32px 34px; border-radius:14px; width:320px;
+           box-shadow:0 10px 30px rgba(0,0,0,.35); }
+.qa-title { margin:0; font-size:22px; color:#0f172a; }
+.qa-sub   { margin:4px 0 22px; font-size:13px; color:#64748b; }
+.qa-error { background:#fee2e2; color:#991b1b; padding:9px 11px; border-radius:8px;
+            font-size:13px; margin:0 0 16px; }
+.qa-form  { display:flex; flex-direction:column; gap:8px; }
+.qa-label { font-size:12px; font-weight:600; color:#334155; text-transform:uppercase;
+            letter-spacing:.04em; }
+.qa-input { padding:10px 12px; border:1px solid #cbd5e1; border-radius:8px; font-size:15px; }
+.qa-input:focus { outline:2px solid #2563eb; outline-offset:1px; border-color:#2563eb; }
+.qa-button { margin-top:10px; padding:11px; border:0; border-radius:8px; cursor:pointer;
+             background:#2563eb; color:#fff; font-size:15px; font-weight:600; }
+.qa-button:hover { background:#1d4ed8; }

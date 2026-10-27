@@ -1,4 +1,8 @@
 <?php
+require_once __DIR__ . '/../includes/admin_auth.php';
+require_admin();
+quiz_require_csrf();
+
 require_once '../includes/config.php';
 require_once '../includes/db.php';
 
@@ -30,8 +34,9 @@ usort($participants, fn($a, $b) => $b['score'] - $a['score']);
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Session Results - <?= htmlspecialchars($quiz['name']) ?></title>
     <link rel="stylesheet" href="../assets/css/style.css">
+<link rel="stylesheet" href="qsadmin.css?v=<?php echo @filemtime(__DIR__."/qsadmin.css"); ?>">
 </head>
-<body>
+<body data-results-config='<?= htmlspecialchars(json_encode(["participants" => $participants, "quizName" => $quiz["name"], "sessionCode" => $session["session_code"], "questionsPerQuiz" => $quiz["questions_per_quiz"]]), ENT_QUOTES, "UTF-8") ?>'>
     <header>
         <div class="container">
             <h1>Quiz System Admin</h1>
@@ -54,7 +59,7 @@ usort($participants, fn($a, $b) => $b['score'] - $a['score']);
             <div class="stats-grid">
                 <div class="stat-card">
                     <div class="stat-label">Session Code</div>
-                    <div class="stat-value" style="font-size: 1.5rem;">
+                    <div class="stat-value u-font-size">
                         <?= $session['session_code'] ?>
                     </div>
                 </div>
@@ -90,7 +95,7 @@ usort($participants, fn($a, $b) => $b['score'] - $a['score']);
 
                 <div class="stat-card">
                     <div class="stat-label">Started</div>
-                    <div class="stat-value" style="font-size: 1rem;">
+                    <div class="stat-value u-font-size-2">
                         <?= date('M j, Y', strtotime($session['started_at'])) ?><br>
                         <?= date('g:i A', strtotime($session['started_at'])) ?>
                     </div>
@@ -99,7 +104,7 @@ usort($participants, fn($a, $b) => $b['score'] - $a['score']);
                 <?php if ($session['ended_at']): ?>
                     <div class="stat-card">
                         <div class="stat-label">Ended</div>
-                        <div class="stat-value" style="font-size: 1rem;">
+                        <div class="stat-value u-font-size-2">
                             <?= date('M j, Y', strtotime($session['ended_at'])) ?><br>
                             <?= date('g:i A', strtotime($session['ended_at'])) ?>
                         </div>
@@ -127,7 +132,7 @@ usort($participants, fn($a, $b) => $b['score'] - $a['score']);
                             <?php foreach ($participants as $index => $participant): ?>
                                 <tr>
                                     <td>
-                                        <strong style="font-size: 1.25rem;">
+                                        <strong class="u-font-size-3">
                                             <?php if ($index === 0 && $participant['completed_at']): ?>
                                                 🥇
                                             <?php elseif ($index === 1 && $participant['completed_at']): ?>
@@ -140,15 +145,15 @@ usort($participants, fn($a, $b) => $b['score'] - $a['score']);
                                         </strong>
                                     </td>
                                     <td>
-                                        <div style="display: flex; align-items: center; gap: 0.5rem;">
-                                            <div style="width: 30px; height: 30px; border-radius: 50%; background: <?= $participant['color_hex'] ?>; color: <?= $participant['color_text'] ?>; display: flex; align-items: center; justify-content: center; font-weight: 700; font-size: 0.75rem;">
+                                        <div class="u-display-3">
+                                            <div data-style="width: 30px; height: 30px; border-radius: 50%; background: <?= $participant['color_hex'] ?>; color: <?= $participant['color_text'] ?>; display: flex; align-items: center; justify-content: center; font-weight: 700; font-size: 0.75rem;">
                                                 <?= strtoupper(substr($participant['color_name'], 0, 2)) ?>
                                             </div>
                                             <strong><?= $participant['color_name'] ?></strong>
                                         </div>
                                     </td>
                                     <td>
-                                        <strong style="font-size: 1.25rem;">
+                                        <strong class="u-font-size-3">
                                             <?= $participant['score'] ?> / <?= $quiz['questions_per_quiz'] ?>
                                         </strong>
                                     </td>
@@ -190,27 +195,7 @@ usort($participants, fn($a, $b) => $b['score'] - $a['score']);
         </div>
     </main>
 
-    <script>
-        function exportToCSV() {
-            const participants = <?= json_encode($participants) ?>;
-            const quizName = <?= json_encode($quiz['name']) ?>;
-            const sessionCode = <?= json_encode($session['session_code']) ?>;
-
-            let csv = 'Rank,Participant,Score,Percentage,Completed At\n';
-
-            participants.forEach((p, index) => {
-                const percentage = Math.round((p.score / <?= $quiz['questions_per_quiz'] ?>) * 100);
-                const completedAt = p.completed_at || 'Incomplete';
-                csv += `${index + 1},"${p.color_name}",${p.score},${percentage}%,"${completedAt}"\n`;
-            });
-
-            const blob = new Blob([csv], { type: 'text/csv' });
-            const url = window.URL.createObjectURL(blob);
-            const a = document.createElement('a');
-            a.href = url;
-            a.download = `quiz-results-${sessionCode}.csv`;
-            a.click();
-        }
-    </script>
+    <script src="session-results.js?v=<?php echo @filemtime(__DIR__."/session-results.js"); ?>"></script>
+<script src="qsadmin-style.js?v=<?php echo @filemtime(__DIR__."/qsadmin-style.js"); ?>"></script>
 </body>
 </html>

@@ -1,4 +1,8 @@
 <?php
+require_once __DIR__ . '/../includes/admin_auth.php';
+require_admin();
+quiz_require_csrf();
+
 require_once '../includes/config.php';
 require_once '../includes/db.php';
 
@@ -155,6 +159,7 @@ function parseJSON($filepath) {
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Upload Quiz - Quiz System</title>
     <link rel="stylesheet" href="../assets/css/style.css">
+<link rel="stylesheet" href="qsadmin.css?v=<?php echo @filemtime(__DIR__."/qsadmin.css"); ?>">
 </head>
 <body>
     <header>
@@ -194,7 +199,7 @@ function parseJSON($filepath) {
                 <div class="card-header">
                     <h3 class="card-title">Upload Quiz File</h3>
                 </div>
-                <form method="POST" enctype="multipart/form-data">
+                <form method="POST" enctype="multipart/form-data"><input type="hidden" name="csrf" value="<?php echo htmlspecialchars(quiz_csrf_token(), ENT_QUOTES); ?>">
                     <input type="hidden" name="csrf_token" value="<?= get_csrf_token() ?>">
 
                     <div class="form-group">
@@ -254,14 +259,14 @@ function parseJSON($filepath) {
 
                 <h4>CSV Format</h4>
                 <p>Your CSV file should have the following columns (header row required):</p>
-                <pre style="background: #f5f5f5; padding: 1rem; border-radius: 0.5rem; overflow-x: auto;">
+                <pre class="u-background">
 question,option_a,option_b,option_c,option_d,correct_answer,explanation,difficulty
 "What is 2+2?","3","4","5","6","B","Basic addition","easy"
 "What is the capital of France?","London","Paris","Berlin","Madrid","B","Paris is the capital","medium"</pre>
 
                 <h4 class="mt-3">JSON Format</h4>
                 <p>Your JSON file should be an array of question objects:</p>
-                <pre style="background: #f5f5f5; padding: 1rem; border-radius: 0.5rem; overflow-x: auto;">
+                <pre class="u-background">
 [
   {
     "question_text": "What is 2+2?",

@@ -64,12 +64,13 @@ if ($code) {
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Join Quiz</title>
     <link rel="stylesheet" href="../assets/css/style.css">
+<link rel="stylesheet" href="../qspub.css">
 </head>
 <body>
     <main>
-        <div class="container" style="max-width: 500px; margin-top: 4rem;">
+        <div class="container u-max-width-2">
             <div class="card text-center">
-                <h1 style="color: var(--primary); margin-bottom: 2rem;">🎯 Join Quiz</h1>
+                <h1 class="u-color">🎯 Join Quiz</h1>
 
                 <?php if ($error): ?>
                     <div class="alert alert-error">
@@ -80,12 +81,12 @@ if ($code) {
                 <form method="POST">
                     <div class="form-group">
                         <label for="session_code">Enter Quiz Code</label>
-                        <input type="text"
+                        <input class="u-text-align-3" type="text"
                                id="session_code"
                                name="session_code"
                                value="<?= htmlspecialchars($code) ?>"
                                maxlength="6"
-                               style="text-align: center; font-size: 2rem; letter-spacing: 0.2em; text-transform: uppercase;"
+                              
                                placeholder="ABC123"
                                required
                                autofocus>
@@ -99,7 +100,7 @@ if ($code) {
 
             <div class="card mt-3">
                 <h3>How to Join</h3>
-                <ol style="text-align: left; line-height: 2;">
+                <ol class="u-text-align-4">
                     <li>Scan the QR code displayed by your instructor, OR</li>
                     <li>Enter the 6-digit code shown on screen</li>
                     <li>Wait for the quiz to start</li>
@@ -107,18 +108,14 @@ if ($code) {
                 </ol>
             </div>
 
-            <div class="text-center mt-3" style="font-size: 0.8rem; color: #666;">
+            <div class="text-center mt-3 u-font-size-6">
                 This site uses essential cookies for authentication. No tracking cookies are used.
-                <br><a href="../privacy.php" style="color: var(--primary);">Privacy Policy</a>
+                <br><a class="u-color-2" href="../privacy.php">Privacy Policy</a>
             </div>
         </div>
     </main>
 
-    <script>
-        // Auto-uppercase input
-        document.getElementById('session_code').addEventListener('input', function(e) {
-            this.value = this.value.toUpperCase().replace(/[^A-Z0-9]/g, '');
-        });
-    </script>
+    <script src="join.1.js?v=<?php echo @filemtime(__DIR__."/join.1.js"); ?>"></script>
+<script src="../qspub-style.js"></script>
 </body>
 </html>

@@ -43,50 +43,20 @@ if ($session['status'] === 'active') {
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Waiting Room</title>
     <link rel="stylesheet" href="../assets/css/style.css">
-    <style>
-        .your-color {
-            width: 150px;
-            height: 150px;
-            border-radius: 50%;
-            margin: 2rem auto;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            font-size: 3rem;
-            font-weight: 700;
-            box-shadow: 0 10px 25px rgba(0,0,0,0.2);
-            animation: pulse-slow 2s infinite;
-        }
-
-        @keyframes pulse-slow {
-            0%, 100% { transform: scale(1); }
-            50% { transform: scale(1.05); }
-        }
-
-        .waiting-message {
-            font-size: 1.5rem;
-            text-align: center;
-            margin: 2rem 0;
-            animation: fade 2s infinite;
-        }
-
-        @keyframes fade {
-            0%, 100% { opacity: 1; }
-            50% { opacity: 0.5; }
-        }
-    </style>
+    <link rel="stylesheet" href="waiting.1.css?v=<?php echo @filemtime(__DIR__."/waiting.1.css"); ?>">
+<link rel="stylesheet" href="../qspub.css">
 </head>
-<body>
+<body data-waiting-config='<?= htmlspecialchars(json_encode(["sessionId" => $sessionId]), ENT_QUOTES, "UTF-8") ?>'>
     <main>
-        <div class="container" style="max-width: 600px; margin-top: 2rem;">
+        <div class="container u-max-width-5">
             <div class="card text-center">
-                <h1 style="color: var(--primary);">You're In! 🎉</h1>
+                <h1 class="u-color-2">You're In! 🎉</h1>
 
-                <div class="your-color" style="background-color: <?= $participant['color_hex'] ?>; color: <?= $participant['color_text'] ?>;">
+                <div class="your-color" data-style="background-color: <?= $participant['color_hex'] ?>; color: <?= $participant['color_text'] ?>;">
                     <?= strtoupper(substr($participant['color_name'], 0, 2)) ?>
                 </div>
 
-                <h2 style="color: <?= $participant['color_hex'] ?>;">
+                <h2 data-style="color: <?= $participant['color_hex'] ?>;">
                     You are <?= $participant['color_name'] ?>
                 </h2>
 
@@ -94,10 +64,10 @@ if ($session['status'] === 'active') {
                     Waiting for quiz to start...
                 </div>
 
-                <div class="stats-grid" style="grid-template-columns: 1fr 1fr;">
+                <div class="stats-grid u-grid-template-colu">
                     <div class="stat-card">
                         <div class="stat-label">Quiz</div>
-                        <div class="stat-value" style="font-size: 1.2rem;">
+                        <div class="stat-value u-font-size-9">
                             <?= htmlspecialchars($quiz['name']) ?>
                         </div>
                     </div>
@@ -128,21 +98,7 @@ if ($session['status'] === 'active') {
         </div>
     </main>
 
-    <script>
-        // Check for quiz start every 2 seconds
-        setInterval(function() {
-            fetch('../api/check-session-status.php?session=<?= $sessionId ?>')
-                .then(response => response.json())
-                .then(data => {
-                    if (data.status === 'active') {
-                        window.location.href = 'quiz.php';
-                    }
-                    if (data.participant_count) {
-                        document.getElementById('participantCount').textContent = data.participant_count;
-                    }
-                })
-                .catch(error => console.error('Error:', error));
-        }, 2000);
-    </script>
+    <script src="waiting.page.js?v=<?php echo @filemtime(__DIR__."/waiting.page.js"); ?>"></script>
+<script src="../qspub-style.js"></script>
 </body>
 </html>

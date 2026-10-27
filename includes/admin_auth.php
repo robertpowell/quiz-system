@@ -112,41 +112,53 @@ function quiz_throttle_file()
     return QUIZ_THROTTLE_DIR . '/' . hash('sha256', $ip) . '.json';
 }
 
-function quiz_throttle_read()
+/**
+ * Count one sign-in attempt and say whether it may go ahead: 'ok', 'blocked'
+ * or 'error'.
+ *
+ * The check and the count happen in ONE step under an exclusive lock. They
+ * used to be two calls (is it blocked? then add one), so attempts arriving at
+ * the same instant could all pass the check before any of them was counted.
+ *
+ * It fails CLOSED: if the counter cannot be opened, locked or saved, the
+ * answer is 'error' and the caller refuses the attempt. The old code ignored a
+ * failed write, so a broken counter meant unlimited guesses with nothing said.
+ */
+function quiz_throttle_take()
 {
-    $f = quiz_throttle_file();
-    $raw = @file_get_contents($f);
-    $d = $raw ? json_decode($raw, true) : null;
-    if (!is_array($d) || !isset($d['n'], $d['t'])) {
-        return ['n' => 0, 't' => time()];
+    if (!is_dir(QUIZ_THROTTLE_DIR) && !@mkdir(QUIZ_THROTTLE_DIR, 0700, true) && !is_dir(QUIZ_THROTTLE_DIR)) {
+        error_log('quiz-system: login throttle unavailable: cannot create ' . QUIZ_THROTTLE_DIR);
+        return 'error';
     }
-    if (time() - (int) $d['t'] > QUIZ_TRY_WIN) {
-        return ['n' => 0, 't' => time()];
+    $fh = @fopen(quiz_throttle_file(), 'c+');
+    if ($fh === false) {
+        error_log('quiz-system: login throttle unavailable: cannot open its counter in ' . QUIZ_THROTTLE_DIR);
+        return 'error';
     }
-    return ['n' => (int) $d['n'], 't' => (int) $d['t']];
-}
-
-function quiz_throttle_write($d)
-{
-    @mkdir(QUIZ_THROTTLE_DIR, 0700, true);
-    $f = quiz_throttle_file();
-    // write-then-rename so a concurrent read never sees a half-written file
-    $tmp = $f . '.' . getmypid() . '.tmp';
-    if (@file_put_contents($tmp, json_encode($d)) !== false) {
-        @rename($tmp, $f);
+    try {
+        if (!flock($fh, LOCK_EX)) {
+            error_log('quiz-system: login throttle unavailable: cannot lock its counter');
+            return 'error';
+        }
+        $raw = stream_get_contents($fh);
+        $d = $raw ? json_decode($raw, true) : null;
+        $now = time();
+        if (!is_array($d) || !isset($d['n'], $d['t']) || $now - (int) $d['t'] > QUIZ_TRY_WIN) {
+            $d = ['n' => 0, 't' => $now];          // no record, or the window has passed
+        }
+        if ((int) $d['n'] >= QUIZ_TRY_MAX) {
+            return 'blocked';                       // a refused attempt is not counted again
+        }
+        $json = json_encode(['n' => (int) $d['n'] + 1, 't' => (int) $d['t']]);
+        if (!ftruncate($fh, 0) || !rewind($fh) || fwrite($fh, $json) !== strlen($json) || !fflush($fh)) {
+            error_log('quiz-system: login throttle unavailable: cannot save its counter');
+            return 'error';
+        }
+        return 'ok';
+    } finally {
+        flock($fh, LOCK_UN);
+        fclose($fh);
     }
-}
-
-function quiz_throttle_blocked()
-{
-    $d = quiz_throttle_read();
-    return $d['n'] >= QUIZ_TRY_MAX;
-}
-
-function quiz_throttle_bump()
-{
-    $d = quiz_throttle_read();
-    quiz_throttle_write(['n' => $d['n'] + 1, 't' => $d['t']]);
 }
 
 function quiz_throttle_clear()
@@ -208,14 +220,20 @@ function require_admin()
         if (!quiz_csrf_ok($_POST['csrf'] ?? null)) {
             quiz_login_form('Session expired. Try again.');
         }
-        if (quiz_throttle_blocked()) {
+        // Count the attempt BEFORE verifying. Incrementing only on failure means
+        // an attacker who aborts the connection mid-verify is never counted.
+        $gate = quiz_throttle_take();
+        if ($gate === 'blocked') {
             header('HTTP/1.1 429 Too Many Requests');
             header('Retry-After: ' . QUIZ_TRY_WIN);
             quiz_login_form('Too many attempts. Wait 15 minutes.');
         }
-        // Count the attempt BEFORE verifying. Incrementing only on failure means
-        // an attacker who aborts the connection mid-verify is never counted.
-        quiz_throttle_bump();
+        if ($gate !== 'ok') {
+            // Fail CLOSED: without a working counter there is no limit on guesses.
+            header('HTTP/1.1 503 Service Unavailable');
+            header('Retry-After: 300');
+            quiz_login_form('Sign in is temporarily unavailable. Try again in a few minutes.');
+        }
         if (password_verify($_POST['admin_password'], $hash)) {
             session_regenerate_id(true);       // no session fixation
             $_SESSION['admin_ok'] = true;
